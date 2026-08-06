@@ -1,0 +1,117 @@
+// Prisma is used here only to create/version the table structure in
+// Supabase Postgres. The running app talks to these tables through
+// @supabase/supabase-js from the browser, with Row Level Security (added
+// via the follow-up raw-SQL migration) enforcing who can read/write what.
+// Prisma Client is not used at runtime.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Mirrors auth.users(id) — created by Supabase Auth, not by this schema.
+// profiles.id references it via a raw-SQL foreign key added afterward.
+model Profile {
+  id                 String   @id @db.Uuid
+  role               String   @default("student")
+  fullName           String?  @map("full_name")
+  studentNumber      String?  @unique @map("student_number")
+  sectionId          String?  @map("section_id") @db.Uuid
+  contactNumber      String?  @map("contact_number")
+  mustChangePassword Boolean  @default(true) @map("must_change_password")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  section           Section?        @relation(fields: [sectionId], references: [id])
+  reports           Report[]
+  announcements     Announcement[]  @relation("AnnouncementCreator")
+  sentMessages      DirectMessage[] @relation("MessageSender")
+  receivedMessages  DirectMessage[] @relation("MessageStudent")
+  triggeredWarnings UrgentWarning[]
+  auditLogs         AuditLog[]
+
+  @@map("profiles")
+}
+
+model Section {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  students Profile[]
+
+  @@map("sections")
+}
+
+model Report {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId   String   @map("student_id") @db.Uuid
+  type        String
+  description String
+  photoPath   String?  @map("photo_path")
+  location    String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  student Profile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@map("reports")
+}
+
+model Announcement {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title     String
+  message   String
+  pinned    Boolean  @default(false)
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  creator Profile? @relation("AnnouncementCreator", fields: [createdBy], references: [id])
+
+  @@map("announcements")
+}
+
+model DirectMessage {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId String   @map("student_id") @db.Uuid
+  senderId  String?  @map("sender_id") @db.Uuid
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  student Profile  @relation("MessageStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  sender  Profile? @relation("MessageSender", fields: [senderId], references: [id])
+
+  @@index([studentId])
+  @@map("direct_messages")
+}
+
+model UrgentWarning {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  message       String    @default("URGENT: School Alert")
+  isActive      Boolean   @default(true) @map("is_active")
+  triggeredBy   String?   @map("triggered_by") @db.Uuid
+  triggeredAt   DateTime  @default(now()) @map("triggered_at") @db.Timestamptz
+  deactivatedAt DateTime? @map("deactivated_at") @db.Timestamptz
+
+  triggeredByProfile Profile? @relation(fields: [triggeredBy], references: [id])
+
+  @@map("urgent_warnings")
+}
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorId   String?  @map("actor_id") @db.Uuid
+  action    String
+  details   String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  actor Profile? @relation(fields: [actorId], references: [id])
+
+  @@map("audit_log")
+}
