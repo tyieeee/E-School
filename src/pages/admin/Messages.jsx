@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Phone, Send, Search, MessageSquare, Check, X } from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
@@ -36,6 +36,7 @@ export default function Messages() {
   const [text, setText] = useState('')
   const [busy, setBusy] = useState(false)
   const [accessBusy, setAccessBusy] = useState(false)
+  const bottomRef = useRef(null)
 
   async function loadStudents() {
     const { data } = await supabase.from('profiles').select('*').eq('role', 'student').order('full_name')
@@ -78,6 +79,10 @@ export default function Messages() {
       supabase.removeChannel(channel)
     }
   }, [selectedId])
+
+  useEffect(() => {
+    if (selectedId) bottomRef.current?.scrollIntoView({ block: 'end' })
+  }, [selectedId, thread])
 
   async function sendMessage(e) {
     e.preventDefault()
@@ -276,6 +281,7 @@ export default function Messages() {
                     </div>
                   )
                 })}
+                <div ref={bottomRef} />
               </div>
 
               <form onSubmit={sendMessage} className="flex gap-2 border-t border-gray-100 p-4">

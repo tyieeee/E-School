@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Inbox as InboxIcon, ShieldCheck, ArrowLeft, Send, Lock, MessageCircleQuestion } from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
@@ -17,15 +17,28 @@ function formatDate(value) {
   })
 }
 
+function initials(name) {
+  if (!name) return '?'
+  return name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
 export default function Inbox() {
   const { user, profile, refreshProfile } = useAuth()
   const [messages, setMessages] = useState([])
+  const [admins, setAdmins] = useState({})
   const [loading, setLoading] = useState(true)
   const [opened, setOpened] = useState(false)
   const [reply, setReply] = useState('')
   const [sending, setSending] = useState(false)
   const [requesting, setRequesting] = useState(false)
   const instanceId = useId()
+  const bottomRef = useRef(null)
+  const replyInputRef = useRef(null)
 
   useEffect(() => {
     if (!user) return
@@ -44,6 +57,14 @@ export default function Inbox() {
 
     load()
     refreshProfile()
+
+    supabase
+      .from('admin_directory')
+      .select('*')
+      .then(({ data }) => {
+        if (!active || !data) return
+        setAdmins(Object.fromEntries(data.map((a) => [a.id, a])))
+      })
 
     const channel = supabase
       .channel(`inbox-student-${instanceId}`)
@@ -67,6 +88,17 @@ export default function Inbox() {
       setMessages((prev) => prev.map((m) => (unreadIds.includes(m.id) ? { ...m, read: true } : m)))
       await supabase.from('direct_messages').update({ read: true }).in('id', unreadIds)
     }
+  }
+
+  useEffect(() => {
+    if (opened) bottomRef.current?.scrollIntoView({ block: 'end' })
+  }, [opened, messages])
+
+  // Some mobile browsers don't shrink the layout viewport for the on-screen
+  // keyboard, so the reply box can end up hidden behind it — nudge it back
+  // into view once the keyboard finishes animating in.
+  function handleReplyFocus() {
+    setTimeout(() => replyInputRef.current?.scrollIntoView({ block: 'center' }), 300)
   }
 
   async function requestReplyAccess() {
@@ -95,6 +127,8 @@ export default function Inbox() {
 
   const unreadCount = messages.filter((m) => !m.read && m.sender_id !== user.id).length
   const latest = messages[messages.length - 1]
+  const lastAdminMessage = [...messages].reverse().find((m) => m.sender_id !== user.id)
+  const latestAdmin = lastAdminMessage ? admins[lastAdminMessage.sender_id] : null
   const canReply = Boolean(profile?.can_reply_to_admin)
   const requestPending = Boolean(profile?.reply_requested_at) && !canReply
 
@@ -111,11 +145,17 @@ export default function Inbox() {
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
           <div className="flex shrink-0 items-center gap-3 border-b border-gray-100 p-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-800">
-              <ShieldCheck size={20} strokeWidth={2} />
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-sm font-bold text-brand-800">
+              {latestAdmin?.avatar_url ? (
+                <img src={latestAdmin.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : latestAdmin?.full_name ? (
+                initials(latestAdmin.full_name)
+              ) : (
+                <ShieldCheck size={20} strokeWidth={2} />
+              )}
             </span>
             <div className="min-w-0">
-              <p className="truncate font-bold text-gray-900">E-School Admin</p>
+              <p className="truncate font-bold text-gray-900">{latestAdmin?.full_name || 'E-School Admin'}</p>
               <p className="text-xs text-gray-400">Your school admin</p>
             </div>
           </div>
@@ -123,16 +163,27 @@ export default function Inbox() {
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
             {groupMessages(messages).map((group, gi) => {
               const mine = group.senderId === user.id
+              const sender = admins[group.senderId]
               const lastInGroup = group.messages[group.messages.length - 1]
               return (
                 <div key={gi} className={`flex items-end gap-2 ${mine ? 'flex-row-reverse' : 'flex-row'}`}>
                   {!mine && (
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-800">
-                      <ShieldCheck size={14} strokeWidth={2} />
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-[10px] font-bold text-brand-800">
+                      {sender?.avatar_url ? (
+                        <img src={sender.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : sender?.full_name ? (
+                        initials(sender.full_name)
+                      ) : (
+                        <ShieldCheck size={14} strokeWidth={2} />
+                      )}
                     </span>
                   )}
                   <div className={`flex max-w-[75%] flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
-                    {!mine && <span className="px-1 text-xs font-semibold text-gray-500">E-School Admin</span>}
+                    {!mine && (
+                      <span className="px-1 text-xs font-semibold text-gray-500">
+                        {sender?.full_name || 'E-School Admin'}
+                      </span>
+                    )}
                     {group.messages.map((m, mi) => (
                       <div
                         key={m.id}
@@ -148,14 +199,17 @@ export default function Inbox() {
                 </div>
               )
             })}
+            <div ref={bottomRef} />
           </div>
 
           <div className="shrink-0 border-t border-gray-100 p-4">
             {canReply ? (
               <form onSubmit={sendReply} className="flex gap-2">
                 <input
+                  ref={replyInputRef}
                   value={reply}
                   onChange={(e) => setReply(e.target.value)}
+                  onFocus={handleReplyFocus}
                   placeholder="Type a reply…"
                   className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                 />
@@ -216,8 +270,14 @@ export default function Inbox() {
           onClick={openThread}
           className="flex w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm transition-colors hover:bg-gray-50"
         >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-800">
-            <ShieldCheck size={20} strokeWidth={2} />
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-sm font-bold text-brand-800">
+            {latestAdmin?.avatar_url ? (
+              <img src={latestAdmin.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : latestAdmin?.full_name ? (
+              initials(latestAdmin.full_name)
+            ) : (
+              <ShieldCheck size={20} strokeWidth={2} />
+            )}
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">

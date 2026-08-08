@@ -5,8 +5,9 @@ import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
 import Button from '../../components/Button'
 import Card from '../../components/Card'
+import GoogleIcon from '../../components/GoogleIcon'
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const GMAIL_RE = /^[^\s@]+@gmail\.com$/i
 
 export default function FirstLoginSetup() {
   const { user, refreshProfile } = useAuth()
@@ -34,8 +35,8 @@ export default function FirstLoginSetup() {
       setError('Please enter a contact number so your Admin can reach you if needed.')
       return
     }
-    if (contactEmail.trim() && !EMAIL_RE.test(contactEmail.trim())) {
-      setError('Please enter a valid email address, or leave it blank.')
+    if (!GMAIL_RE.test(contactEmail.trim())) {
+      setError('Please enter a valid Gmail address (e.g. you@gmail.com).')
       return
     }
 
@@ -119,15 +120,25 @@ export default function FirstLoginSetup() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
-            Email (optional)
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-brand-500 focus:outline-none"
-            />
+            Gmail address
+            <div className="relative">
+              <GoogleIcon
+                size={18}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+              />
+              <input
+                type="email"
+                required
+                placeholder="you@gmail.com"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                className="w-full rounded-xl border border-gray-300 py-3 pl-10 pr-4 text-base focus:border-brand-500 focus:outline-none"
+              />
+            </div>
           </label>
+          <p className="-mt-2 text-xs font-normal text-gray-400">
+            We&apos;ll use this to send a password reset link if you ever get locked out.
+          </p>
 
           {error && <p className="text-sm font-medium text-urgent-600">{error}</p>}
 

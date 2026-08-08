@@ -1,6 +1,13 @@
 import { useRef } from 'react'
 
-export default function PinInput({ length = 6, value, onChange, autoFocus = false, disabled = false }) {
+export default function PinInput({
+  length = 6,
+  value,
+  onChange,
+  autoFocus = false,
+  disabled = false,
+  complete = false,
+}) {
   const inputsRef = useRef([])
 
   function setDigit(index, digit) {
@@ -48,7 +55,11 @@ export default function PinInput({ length = 6, value, onChange, autoFocus = fals
   }
 
   return (
-    <div className="flex justify-center gap-2 rounded-2xl border border-gray-200 bg-gray-50 p-3">
+    <div
+      className={`flex justify-center gap-2 rounded-2xl border p-3 transition-colors ${
+        complete ? 'border-calm-500 bg-calm-50' : 'border-gray-200 bg-gray-50'
+      }`}
+    >
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
@@ -62,7 +73,11 @@ export default function PinInput({ length = 6, value, onChange, autoFocus = fals
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className="h-12 w-11 rounded-xl border border-gray-200 bg-white text-center text-lg font-bold text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 disabled:opacity-50"
+          className={`h-12 w-11 rounded-xl border text-center text-lg font-bold text-gray-900 focus:outline-none focus:ring-2 disabled:opacity-50 ${
+            complete
+              ? 'border-calm-500 bg-white focus:border-calm-500 focus:ring-calm-500/20'
+              : 'border-gray-200 bg-white focus:border-brand-500 focus:ring-brand-500/20'
+          }`}
         />
       ))}
     </div>

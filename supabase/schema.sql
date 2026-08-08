@@ -399,6 +399,17 @@ create policy "profiles_update_own_or_admin" on profiles
   for update using (id = auth.uid() or is_admin())
   with check (id = auth.uid() or is_admin());
 
+-- Students can't select admin rows directly (profiles RLS above is
+-- own-row-only for them), but the Inbox needs to show the real name/photo
+-- of whichever Admin sent a message. This view runs with its owner's
+-- privileges (the default for a plain view), so it can read every admin
+-- row regardless of the caller's RLS — while only ever exposing the two
+-- display columns, never contact info or anything else on the row.
+create or replace view admin_directory as
+  select id, full_name, avatar_url from profiles where role = 'admin';
+
+grant select on admin_directory to authenticated;
+
 -- Students may only ever change their own contact number / password flag /
 -- name — never their own role or student_number. Admins get full column
 -- access so they can manage accounts.

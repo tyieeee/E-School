@@ -7,9 +7,11 @@ import { hashPasscode } from '../../lib/passcode'
 import Button from '../../components/Button'
 import CenterToast from '../../components/CenterToast'
 import PinInput from '../../components/PinInput'
+import GoogleIcon from '../../components/GoogleIcon'
 
 const AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_AVATAR_BYTES = 3 * 1024 * 1024
+const MIN_PASSCODE_LENGTH = 4 // matches the 4–6 digit passcode rule enforced on submit
 
 function initials(name) {
   if (!name) return 'S'
@@ -33,6 +35,9 @@ export default function Settings() {
   const [currentPasscode, setCurrentPasscode] = useState('')
   const [newPasscode, setNewPasscode] = useState('')
   const [confirmPasscode, setConfirmPasscode] = useState('')
+  const currentFilled = currentPasscode.length >= MIN_PASSCODE_LENGTH
+  const newFilled = newPasscode.length >= MIN_PASSCODE_LENGTH
+  const confirmFilled = confirmPasscode.length >= MIN_PASSCODE_LENGTH
   const [passcodeError, setPasscodeError] = useState('')
   const [passcodeBusy, setPasscodeBusy] = useState(false)
   const [requestingPasscodeReset, setRequestingPasscodeReset] = useState(false)
@@ -254,15 +259,15 @@ export default function Settings() {
               </div>
             </div>
           </div>
-          {profile?.contact_email && (
-            <div className="flex items-center gap-3 px-5 py-4">
-              <Mail size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
-              <div className="min-w-0">
-                <p className="text-xs text-gray-400">Contact email</p>
-                <p className="truncate text-sm font-semibold text-gray-800">{profile.contact_email}</p>
-              </div>
+          <div className="flex items-center gap-3 px-5 py-4">
+            <GoogleIcon size={18} className="shrink-0" />
+            <div className="min-w-0">
+              <p className="text-xs text-gray-400">Gmail</p>
+              <p className="truncate text-sm font-semibold text-gray-800">
+                {profile?.contact_email || '—'}
+              </p>
             </div>
-          )}
+          </div>
           <div className="flex items-center gap-3 px-5 py-4">
             <Lock size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
             <div className="min-w-0 flex-1">
@@ -377,18 +382,34 @@ export default function Settings() {
           {hasPasscode && (
             <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
               Current passcode
-              <PinInput value={currentPasscode} onChange={setCurrentPasscode} />
+              <PinInput
+                value={currentPasscode}
+                onChange={setCurrentPasscode}
+                autoFocus
+                complete={currentFilled}
+              />
             </div>
           )}
 
           <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
             New passcode
-            <PinInput value={newPasscode} onChange={setNewPasscode} />
+            <PinInput
+              value={newPasscode}
+              onChange={setNewPasscode}
+              autoFocus={!hasPasscode}
+              disabled={hasPasscode && !currentFilled}
+              complete={newFilled}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
             Confirm new passcode
-            <PinInput value={confirmPasscode} onChange={setConfirmPasscode} />
+            <PinInput
+              value={confirmPasscode}
+              onChange={setConfirmPasscode}
+              disabled={!newFilled}
+              complete={confirmFilled}
+            />
           </div>
 
           {passcodeError && <p className="text-sm font-medium text-urgent-600">{passcodeError}</p>}
@@ -409,7 +430,7 @@ export default function Settings() {
                 type="button"
                 onClick={requestPasscodeReset}
                 disabled={requestingPasscodeReset}
-                className="text-xs font-semibold text-gray-400 underline decoration-dotted hover:text-gray-600 disabled:opacity-50"
+                className="text-xs font-semibold text-brand-600 underline decoration-dotted hover:text-brand-700 disabled:opacity-50"
               >
                 {requestingPasscodeReset ? 'Sending…' : 'Forgot your passcode? Ask your Admin for help.'}
               </button>

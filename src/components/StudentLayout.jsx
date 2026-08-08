@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Home, Megaphone, Inbox, User } from 'lucide-react'
+import { Home, Megaphone, Inbox, User, ChevronRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useUnreadMessages } from '../hooks/useUnreadMessages'
 import UrgentWarningOverlay from './UrgentWarningOverlay'
@@ -11,6 +11,13 @@ const navItems = [
   { to: '/inbox', label: 'Inbox', icon: Inbox },
   { to: '/settings', label: 'Profile', icon: User },
 ]
+
+function greeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
 
 function initials(name) {
   if (!name) return 'S'
@@ -32,7 +39,10 @@ export default function StudentLayout() {
 
       <header className="shrink-0 border-b border-gray-100 bg-white/90 px-4 py-3.5 backdrop-blur-md sm:px-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <NavLink
+            to="/settings"
+            className="group -m-1 flex min-w-0 items-center gap-3 rounded-xl p-1 transition-colors hover:bg-gray-50 active:bg-gray-100"
+          >
             <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white text-sm font-bold text-brand-800 ring-[3px] ring-brand-600">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -41,12 +51,17 @@ export default function StudentLayout() {
               )}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-base font-bold text-gray-900">
+              <p className="text-xs font-medium text-gray-400">{greeting()}</p>
+              <p className="truncate text-base font-bold leading-tight text-gray-900">
                 {profile?.full_name || 'Student'}
               </p>
-              <p className="text-sm text-gray-400">Student</p>
             </div>
-          </div>
+            <ChevronRight
+              size={16}
+              strokeWidth={2}
+              className="shrink-0 text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"
+            />
+          </NavLink>
           <NotificationBell />
         </div>
       </header>

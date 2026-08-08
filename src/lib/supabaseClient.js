@@ -9,4 +9,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// "Remember me" on the student sign-in form controls whether the session
+// survives a browser restart (localStorage) or is cleared when the tab
+// closes (sessionStorage). Defaults to localStorage so every other sign-in
+// path (admin login, first-login setup, etc.) keeps its prior behavior.
+const rememberMeStorage = {
+  getItem: (key) => {
+    const store = localStorage.getItem('sb-remember-me') === 'false' ? sessionStorage : localStorage
+    return store.getItem(key)
+  },
+  setItem: (key, value) => {
+    const store = localStorage.getItem('sb-remember-me') === 'false' ? sessionStorage : localStorage
+    store.setItem(key, value)
+  },
+  removeItem: (key) => {
+    localStorage.removeItem(key)
+    sessionStorage.removeItem(key)
+  },
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { storage: rememberMeStorage },
+})

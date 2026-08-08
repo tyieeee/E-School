@@ -1,6 +1,5 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import {
-  ShieldCheck,
   LayoutDashboard,
   Users,
   ClipboardList,
@@ -64,8 +63,12 @@ export default function AdminLayout() {
     <div className="flex min-h-screen bg-gray-50">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white sm:flex">
         <div className="flex items-center gap-2.5 px-5 py-5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-md shadow-brand-900/20">
-            <ShieldCheck size={20} strokeWidth={2.25} />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand-100 text-sm font-bold text-brand-700 shadow-sm">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initials(profile?.full_name)
+            )}
           </div>
           <div>
             <p className="text-sm font-bold leading-tight tracking-tight text-gray-900">E-School</p>
@@ -137,8 +140,12 @@ export default function AdminLayout() {
       <div className="flex min-h-screen flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2 sm:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-sm shadow-brand-900/20">
-              <ShieldCheck size={16} strokeWidth={2.25} />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-100 text-xs font-bold text-brand-700 shadow-sm">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                initials(profile?.full_name)
+              )}
             </div>
             <span className="text-sm font-bold text-gray-900">E-School Admin</span>
           </div>

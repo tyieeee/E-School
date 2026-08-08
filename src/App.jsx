@@ -6,6 +6,8 @@ import AdminLayout from './components/AdminLayout'
 
 import Welcome from './pages/student/Welcome'
 import StudentLogin from './pages/student/Login'
+import ForgotPassword from './pages/student/ForgotPassword'
+import ResetPassword from './pages/student/ResetPassword'
 import FirstLoginSetup from './pages/student/FirstLoginSetup'
 import StudentDashboard from './pages/student/Dashboard'
 import Report from './pages/student/Report'
@@ -41,6 +43,8 @@ export default function App() {
 
           <Route path="/login" element={<StudentLogin />} />
           <Route path="/login/adminlogin" element={<AdminLogin />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route element={<ProtectedRoute role="student" />}>
             <Route path="/first-login-setup" element={<FirstLoginSetup />} />
