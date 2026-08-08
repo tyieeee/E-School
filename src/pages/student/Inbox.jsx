@@ -160,13 +160,13 @@ export default function Inbox() {
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4">
             {groupMessages(messages).map((group, gi) => {
               const mine = group.senderId === user.id
               const sender = admins[group.senderId]
               const lastInGroup = group.messages[group.messages.length - 1]
               return (
-                <div key={gi} className={`flex items-end gap-2 ${mine ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div key={gi} className={`flex min-w-0 items-end gap-2 ${mine ? 'flex-row-reverse' : 'flex-row'}`}>
                   {!mine && (
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-[10px] font-bold text-brand-800">
                       {sender?.avatar_url ? (
@@ -178,7 +178,7 @@ export default function Inbox() {
                       )}
                     </span>
                   )}
-                  <div className={`flex max-w-[75%] flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
+                  <div className={`flex min-w-0 max-w-[75%] flex-col gap-1 ${mine ? 'items-end' : 'items-start'}`}>
                     {!mine && (
                       <span className="px-1 text-xs font-semibold text-gray-500">
                         {sender?.full_name || 'E-School Admin'}
@@ -187,11 +187,11 @@ export default function Inbox() {
                     {group.messages.map((m, mi) => (
                       <div
                         key={m.id}
-                        className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                        className={`min-w-0 max-w-full rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                           mine ? 'bg-brand-600 text-white' : 'border border-gray-100 bg-gray-50 text-gray-700'
                         } ${mi === 0 ? (mine ? 'rounded-tr-sm' : 'rounded-tl-sm') : ''}`}
                       >
-                        <p className="whitespace-pre-wrap">{m.message}</p>
+                        <p className="whitespace-pre-wrap break-words">{m.message}</p>
                       </div>
                     ))}
                     <span className="px-1 text-[11px] text-gray-400">{formatDate(lastInGroup.created_at)}</span>

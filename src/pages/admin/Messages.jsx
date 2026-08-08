@@ -242,7 +242,7 @@ export default function Messages() {
                 </div>
               )}
 
-              <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
+              <div className="flex flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4">
                 {thread.length === 0 && (
                   <p className="py-8 text-center text-sm text-gray-400">No messages yet with this student.</p>
                 )}
@@ -250,7 +250,7 @@ export default function Messages() {
                   const fromStudent = group.senderId === selectedId
                   const lastInGroup = group.messages[group.messages.length - 1]
                   return (
-                    <div key={gi} className={`flex items-end gap-2 ${fromStudent ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <div key={gi} className={`flex min-w-0 items-end gap-2 ${fromStudent ? 'flex-row' : 'flex-row-reverse'}`}>
                       {fromStudent && (
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-100 text-[10px] font-bold text-brand-700">
                           {selectedStudent?.avatar_url ? (
@@ -260,14 +260,14 @@ export default function Messages() {
                           )}
                         </div>
                       )}
-                      <div className={`flex max-w-[75%] flex-col gap-1 ${fromStudent ? 'items-start' : 'items-end'}`}>
+                      <div className={`flex min-w-0 max-w-[75%] flex-col gap-1 ${fromStudent ? 'items-start' : 'items-end'}`}>
                         <span className="px-1 text-xs font-semibold text-gray-500">
                           {fromStudent ? selectedStudent?.full_name : 'You'}
                         </span>
                         {group.messages.map((m, mi) => (
                           <div
                             key={m.id}
-                            className={`rounded-2xl px-4 py-2.5 text-sm ${
+                            className={`min-w-0 max-w-full break-words rounded-2xl px-4 py-2.5 text-sm ${
                               fromStudent
                                 ? `bg-gray-100 text-gray-800 ${mi === 0 ? 'rounded-tl-sm' : ''}`
                                 : `bg-brand-600 text-white ${mi === 0 ? 'rounded-tr-sm' : ''}`
