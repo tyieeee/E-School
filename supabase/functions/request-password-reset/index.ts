@@ -64,14 +64,26 @@ Deno.serve(async (req) => {
 
     if (match) {
       const { data: userData, error: getErr } = await admin.auth.admin.getUserById(match.id)
-      if (!getErr && userData?.user?.email) {
+      if (getErr) {
+        console.error('getUserById failed:', getErr.message)
+      } else if (userData?.user?.email) {
         // resetPasswordForEmail sends to whatever address it's given, so it
         // has to be called with the account's real login email, not the
         // contact email the student just typed in — those are usually two
         // different addresses.
         const anonClient = createClient(SUPABASE_URL, ANON_KEY)
-        await anonClient.auth.resetPasswordForEmail(userData.user.email, { redirectTo })
+        const { error: resetErr } = await anonClient.auth.resetPasswordForEmail(userData.user.email, {
+          redirectTo,
+        })
+        // Swallowed from the client response on purpose (same anti-enumeration
+        // reasoning as above) but logged here so failures are actually visible
+        // in Supabase's Edge Function logs instead of vanishing silently —
+        // the most common cause is redirectTo not being on the project's
+        // Auth > URL Configuration > Redirect URLs allow-list.
+        if (resetErr) console.error('resetPasswordForEmail failed:', resetErr.message)
       }
+    } else {
+      console.log('No profile matched contact_email (this is expected/normal for unknown emails)')
     }
 
     return json({ success: true, message: GENERIC_MESSAGE })

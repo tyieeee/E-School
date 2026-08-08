@@ -49,7 +49,7 @@ export default function StudentDashboard() {
       <div className="mb-6 grid grid-cols-3 gap-3">
         {quickActions.map((item) => (
           <Link key={item.to} to={item.to} className="flex flex-col items-center gap-2">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-800 ring-1 ring-brand-100 transition-colors hover:bg-brand-100">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-800 ring-1 ring-brand-100 shadow-md shadow-brand-900/10 transition-colors hover:bg-brand-100">
               <item.icon size={24} strokeWidth={2} />
             </span>
             <span className="text-xs font-semibold text-gray-700">{item.label}</span>

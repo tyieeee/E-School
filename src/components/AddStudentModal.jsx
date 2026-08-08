@@ -126,7 +126,7 @@ export default function AddStudentModal({ open, onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-xl">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <h2 className="text-lg font-bold text-gray-900">Add a new student</h2>
           <button
@@ -139,147 +139,170 @@ export default function AddStudentModal({ open, onClose, onCreated }) {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-6 py-5">
-          <div>
-            <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-              Scan student ID <span className="font-normal text-gray-400">(optional)</span>
-            </label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={scanning}
-              className="flex w-full items-center gap-3 rounded-xl border border-dashed border-gray-300 px-4 py-3 text-left hover:bg-gray-50 disabled:opacity-60"
-            >
-              {photoPreview ? (
-                <img src={photoPreview} alt="ID preview" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-              ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
-                  <ScanLine size={20} strokeWidth={2} />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                {scanning ? (
-                  <p className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <Loader2 size={14} strokeWidth={2} className="animate-spin" />
-                    Scanning… {scanProgress}%
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-sm font-semibold text-gray-700">
-                      {photoPreview ? 'Replace photo' : 'Upload a photo of the ID'}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {photoPreview ? 'Tap to scan a different ID' : 'JPG or PNG — we’ll try to read the name and student number'}
-                    </p>
-                  </>
-                )}
-              </div>
-              {!scanning && !photoPreview && <Upload size={16} strokeWidth={2} className="shrink-0 text-gray-300" />}
-            </button>
-
-            {scanResult === 'found' && (
-              <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-calm-600">
-                <CheckCircle2 size={13} strokeWidth={2} />
-                Detected a name and student number — please review below before saving.
-              </p>
-            )}
-            {scanResult === 'partial' && (
-              <p className="mt-2 text-xs font-medium text-yellow-700">
-                Only partially readable — please check and complete the fields below.
-              </p>
-            )}
-            {scanResult === 'none' && !error && (
-              <p className="mt-2 text-xs text-gray-500">
-                Couldn't confidently read this ID — please fill in the details manually.
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Full name</label>
-            <input
-              value={form.full_name}
-              onChange={(e) => updateField('full_name', e.target.value)}
-              placeholder="Juan Dela Cruz"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Student number</label>
-            <input
-              value={form.student_number}
-              onChange={(e) => updateField('student_number', e.target.value)}
-              placeholder="2026-00123"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Section <span className="font-normal text-gray-400">(optional)</span>
-            </label>
-            <SectionSelect
-              value={form.section_id}
-              onChange={(id) => setForm((prev) => ({ ...prev, section_id: id }))}
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Email <span className="font-normal text-gray-400">(auto-generated from name — editable)</span>
-            </label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => {
-                setEmailTouched(true)
-                setForm((prev) => ({ ...prev, email: e.target.value }))
-              }}
-              placeholder="juan@eschool.com"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
-              Temporary password <span className="font-normal text-gray-400">(pre-filled — editable)</span>
-            </label>
-            <div className="relative">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[200px_1fr]">
+            <div>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                Scan student ID <span className="font-normal text-gray-400">(optional)</span>
+              </label>
               <input
-                type={passwordVisible ? 'text' : 'password'}
-                value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-                minLength={8}
-                className="w-full rounded-xl border border-gray-300 py-3 pl-4 pr-20 text-sm focus:border-brand-500 focus:outline-none"
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleFileChange}
+                className="hidden"
               />
-              <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, password: generateTempPassword() }))}
-                  aria-label="Generate new password"
-                  title="Generate new password"
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <RefreshCw size={15} strokeWidth={2} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPasswordVisible((v) => !v)}
-                  aria-label={passwordVisible ? 'Hide password' : 'Show password'}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  {passwordVisible ? <EyeOff size={15} strokeWidth={2} /> : <Eye size={15} strokeWidth={2} />}
-                </button>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={scanning}
+                className="group relative block aspect-[4/5] w-full overflow-hidden rounded-xl border border-dashed border-gray-300 hover:bg-gray-50 disabled:opacity-60"
+              >
+                {photoPreview ? (
+                  <img src={photoPreview} alt="ID preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full flex-col items-center justify-center gap-2 px-3 text-center text-brand-600">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-100">
+                      <ScanLine size={20} strokeWidth={2} />
+                    </div>
+                    <p className="text-xs font-semibold text-gray-700">Upload a photo of the ID</p>
+                    <p className="text-[11px] leading-snug text-gray-400">
+                      JPG or PNG — we’ll try to read the name and student number
+                    </p>
+                  </div>
+                )}
+
+                {scanning && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/50 text-white">
+                    <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                    <p className="text-xs font-semibold">Scanning… {scanProgress}%</p>
+                  </div>
+                )}
+
+                {photoPreview && !scanning && (
+                  <div className="absolute inset-x-0 bottom-0 bg-black/55 py-1.5 text-center text-[11px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100">
+                    Tap to replace
+                  </div>
+                )}
+
+                {!scanning && !photoPreview && (
+                  <Upload size={14} strokeWidth={2} className="absolute right-2 top-2 text-gray-300" />
+                )}
+              </button>
+
+              {scanResult === 'found' && (
+                <p className="mt-2 flex items-start gap-1.5 text-xs font-medium text-calm-600">
+                  <CheckCircle2 size={13} strokeWidth={2} className="mt-0.5 shrink-0" />
+                  Detected a name and student number — please review before saving.
+                </p>
+              )}
+              {scanResult === 'partial' && (
+                <p className="mt-2 text-xs font-medium text-yellow-700">
+                  Only partially readable — please check and complete the fields.
+                </p>
+              )}
+              {scanResult === 'none' && !error && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Couldn't confidently read this ID — please fill in the details manually.
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-5">
+              <div>
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Student Information</p>
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-1 block text-sm font-semibold text-gray-700">Full name</label>
+                      <input
+                        value={form.full_name}
+                        onChange={(e) => updateField('full_name', e.target.value)}
+                        placeholder="Juan Dela Cruz"
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-sm font-semibold text-gray-700">Student number</label>
+                      <input
+                        value={form.student_number}
+                        onChange={(e) => updateField('student_number', e.target.value)}
+                        placeholder="2026-00123"
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold text-gray-700">
+                      Section <span className="font-normal text-gray-400">(optional)</span>
+                    </label>
+                    <SectionSelect
+                      value={form.section_id}
+                      onChange={(id) => setForm((prev) => ({ ...prev, section_id: id }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-100 pt-5">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-400">Account Setup</p>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold text-gray-700">
+                      Email <span className="font-normal text-gray-400">(auto-generated — editable)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => {
+                        setEmailTouched(true)
+                        setForm((prev) => ({ ...prev, email: e.target.value }))
+                      }}
+                      placeholder="juan@eschool.com"
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold text-gray-700">
+                      Temporary password <span className="font-normal text-gray-400">(pre-filled)</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={passwordVisible ? 'text' : 'password'}
+                        value={form.password}
+                        onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                        minLength={8}
+                        className="w-full rounded-xl border border-gray-300 py-3 pl-4 pr-20 text-sm focus:border-brand-500 focus:outline-none"
+                      />
+                      <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setForm((prev) => ({ ...prev, password: generateTempPassword() }))}
+                          aria-label="Generate new password"
+                          title="Generate new password"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        >
+                          <RefreshCw size={15} strokeWidth={2} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPasswordVisible((v) => !v)}
+                          aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        >
+                          {passwordVisible ? <EyeOff size={15} strokeWidth={2} /> : <Eye size={15} strokeWidth={2} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-400">
+                  Password must be at least 8 characters. The student will set their own on first login.
+                </p>
               </div>
             </div>
-            <p className="mt-1 text-xs text-gray-400">At least 8 characters. The student will set their own on first login.</p>
           </div>
 
           {error && <p className="text-sm font-medium text-urgent-600">{error}</p>}
