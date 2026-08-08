@@ -289,7 +289,7 @@ export default function Messages() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Type a message…"
-                  className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
+                  className="min-w-0 flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
                 />
                 <Button type="submit" disabled={busy || !text.trim()}>
                   <Send size={16} strokeWidth={2} />
