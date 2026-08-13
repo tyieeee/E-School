@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { useTour } from '../context/TourContext'
 import { usePreferences } from '../context/PreferencesContext'
@@ -10,6 +11,21 @@ export default function TourOverlay() {
   const { active, step, stepIndex, total, next, back, finish } = useTour()
   const { theme } = usePreferences()
   const rect = useTargetRect(step?.target, active)
+
+  // Blocking pointer events on the overlay only stops new clicks — an
+  // autoFocused field (like the passcode PIN boxes) already has keyboard
+  // focus the instant its page mounts, so typing would still reach it
+  // unless we actively steal focus back for as long as the tour is up.
+  useEffect(() => {
+    if (!active) return undefined
+    document.activeElement?.blur?.()
+
+    function stealFocus(e) {
+      if (e.target && e.target !== document.body) e.target.blur()
+    }
+    document.addEventListener('focusin', stealFocus)
+    return () => document.removeEventListener('focusin', stealFocus)
+  }, [active])
 
   if (!active || !step) return null
 
@@ -43,12 +59,13 @@ export default function TourOverlay() {
 
   return (
     <div className="fixed inset-0 z-[60]">
-      {!spotlightStyle && (
-        <div
-          className="absolute inset-0 transition-opacity"
-          style={{ backgroundColor: `rgba(0,0,0,${backdropAlpha})` }}
-        />
-      )}
+      {/* Blocks all clicks/typing on the real page underneath, everywhere —
+          including inside the spotlighted area, which is only visually
+          "cut out" via the box-shadow trick below, not actually interactive. */}
+      <div
+        className="absolute inset-0 transition-opacity"
+        style={spotlightStyle ? undefined : { backgroundColor: `rgba(0,0,0,${backdropAlpha})` }}
+      />
 
       {spotlightStyle && (
         <div
