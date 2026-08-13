@@ -34,7 +34,8 @@ export function TourProvider({ children }) {
   const finish = useCallback(() => {
     setActive(false)
     if (user?.id) markTutorialSeen(user.id)
-  }, [user?.id])
+    navigate('/dashboard')
+  }, [user?.id, navigate])
 
   const next = useCallback(() => {
     const nextIndex = stepIndex + 1
