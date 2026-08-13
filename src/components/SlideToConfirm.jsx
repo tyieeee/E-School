@@ -61,7 +61,7 @@ export default function SlideToConfirm({
   return (
     <div
       ref={trackRef}
-      className={`relative flex h-14 w-full items-center overflow-hidden rounded-full bg-brand-600 shadow-sm transition-opacity ${
+      className={`relative flex h-14 w-full items-center overflow-hidden rounded-full bg-brand-600 shadow-lg shadow-brand-900/30 transition-opacity ${
         disabled ? 'opacity-50' : ''
       }`}
     >

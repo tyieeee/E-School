@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X, FolderInput } from 'lucide-react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, getFunctionErrorMessage } from '../lib/supabaseClient'
 import Button from './Button'
 import SectionSelect from './SectionSelect'
 
@@ -29,7 +29,7 @@ export default function MoveStudentModal({ student, onClose, onMoved }) {
     setBusy(false)
 
     if (invokeError || data?.error) {
-      setError(data?.error || invokeError.message)
+      setError(await getFunctionErrorMessage(invokeError, data))
       return
     }
 

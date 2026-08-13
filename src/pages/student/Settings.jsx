@@ -1,6 +1,19 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { User, LogOut, Camera, KeyRound, ChevronLeft, ChevronRight, BadgeCheck, Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react'
+import {
+  User,
+  LogOut,
+  Camera,
+  KeyRound,
+  ChevronLeft,
+  ChevronRight,
+  BadgeCheck,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
 import { hashPasscode } from '../../lib/passcode'
@@ -222,39 +235,39 @@ export default function Settings() {
         <CenterToast toast={toast} onDismiss={() => setToast(null)} />
         <button
           onClick={() => setView('list')}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-700"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         >
           <ChevronLeft size={18} strokeWidth={2} />
           Profile
         </button>
-        <h1 className="mb-1 text-xl font-bold text-gray-900">Personal Information</h1>
-        <p className="mb-6 text-sm text-gray-500">Set by your Admin — contact them to make changes.</p>
+        <h1 className="mb-1 text-xl font-bold text-gray-900 dark:text-white">Personal Information</h1>
+        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Set by your Admin — contact them to make changes.</p>
 
-        <div className="flex flex-col divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="flex flex-col divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-slate-900">
           <div className="flex items-center gap-3 px-5 py-4">
-            <User size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
+            <User size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
             <div className="min-w-0">
-              <p className="text-xs text-gray-400">Full name</p>
-              <p className="truncate text-sm font-semibold text-gray-800">{profile?.full_name || '—'}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Full name</p>
+              <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">{profile?.full_name || '—'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-5 py-4">
-            <Mail size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
+            <Mail size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
             <div className="min-w-0">
-              <p className="text-xs text-gray-400">Login email</p>
-              <p className="truncate text-sm font-semibold text-gray-800">{user?.email || '—'}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Login email</p>
+              <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">{user?.email || '—'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-5 py-4">
-            <Phone size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
+            <Phone size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-400">Contact number</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Contact number</p>
               <div className="flex items-center gap-1.5">
-                <p className="truncate text-sm font-semibold text-gray-800">
+                <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
                   {profile?.contact_number || '—'}
                 </p>
                 {profile?.contact_number_verified && (
-                  <BadgeCheck size={14} strokeWidth={2} className="shrink-0 text-calm-600" />
+                  <BadgeCheck size={14} strokeWidth={2} className="shrink-0 text-calm-600 dark:text-calm-400" />
                 )}
               </div>
             </div>
@@ -262,23 +275,23 @@ export default function Settings() {
           <div className="flex items-center gap-3 px-5 py-4">
             <GoogleIcon size={18} className="shrink-0" />
             <div className="min-w-0">
-              <p className="text-xs text-gray-400">Gmail</p>
-              <p className="truncate text-sm font-semibold text-gray-800">
+              <p className="text-xs text-gray-400 dark:text-gray-500">Gmail</p>
+              <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
                 {profile?.contact_email || '—'}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-5 py-4">
-            <Lock size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
+            <Lock size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-gray-400">Password</p>
-              <p className="truncate text-sm font-semibold tracking-widest text-gray-800">••••••••</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Password</p>
+              <p className="truncate text-sm font-semibold tracking-widest text-gray-800 dark:text-gray-100">••••••••</p>
             </div>
             <button
               type="button"
               onClick={() => (showPasswordPanel ? setShowPasswordPanel(false) : openPasswordToggle())}
               aria-label={showPasswordPanel ? 'Close password panel' : 'Change password'}
-              className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-500 dark:hover:bg-white/10 dark:hover:text-gray-300"
             >
               {showPasswordPanel ? <EyeOff size={17} strokeWidth={2} /> : <Eye size={17} strokeWidth={2} />}
             </button>
@@ -289,13 +302,13 @@ export default function Settings() {
           !passwordUnlocked &&
           createPortal(
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-              <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+              <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900">
                 <form onSubmit={handlePasswordGateSubmit} className="flex flex-col gap-4">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-800">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-800 dark:bg-brand-500/15 dark:text-brand-400">
                       <Lock size={16} strokeWidth={2} />
                     </span>
-                    <p className="text-sm font-bold text-gray-800">Enter your My Reports passcode</p>
+                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100">Enter your My Reports passcode</p>
                   </div>
                   <PinInput value={passwordGateCode} onChange={setPasswordGateCode} autoFocus />
                   {passwordGateError && (
@@ -305,7 +318,7 @@ export default function Settings() {
                     <button
                       type="button"
                       onClick={() => setShowPasswordPanel(false)}
-                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+                      className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5"
                     >
                       Cancel
                     </button>
@@ -320,27 +333,27 @@ export default function Settings() {
           )}
 
         {showPasswordPanel && passwordUnlocked && (
-          <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+          <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
             <form onSubmit={handlePasswordChangeSubmit} className="flex flex-col gap-4">
-                <p className="text-sm font-bold text-gray-800">Change password</p>
-                <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-100">Change password</p>
+                <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
                   New password
                   <input
                     type="password"
                     minLength={8}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white"
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
+                <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Confirm new password
                   <input
                     type="password"
                     minLength={8}
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white"
                   />
                 </label>
                 {passwordChangeError && (
@@ -350,7 +363,7 @@ export default function Settings() {
                   <button
                     type="button"
                     onClick={() => setShowPasswordPanel(false)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+                    className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-300 dark:hover:bg-white/5"
                   >
                     Cancel
                   </button>
@@ -371,16 +384,16 @@ export default function Settings() {
         <CenterToast toast={toast} onDismiss={() => setToast(null)} />
         <button
           onClick={() => setView('list')}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-700"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
         >
           <ChevronLeft size={18} strokeWidth={2} />
           Profile
         </button>
-        <h1 className="mb-6 text-xl font-bold text-gray-900">My Reports Passcode</h1>
+        <h1 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">My Reports Passcode</h1>
 
-        <form onSubmit={handlePasscodeSubmit} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <form onSubmit={handlePasscodeSubmit} className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
           {hasPasscode && (
-            <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
+            <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
               Current passcode
               <PinInput
                 value={currentPasscode}
@@ -391,7 +404,7 @@ export default function Settings() {
             </div>
           )}
 
-          <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
+          <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
             New passcode
             <PinInput
               value={newPasscode}
@@ -402,7 +415,7 @@ export default function Settings() {
             />
           </div>
 
-          <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700">
+          <div className="flex flex-col gap-1.5 text-sm font-semibold text-gray-700 dark:text-gray-300">
             Confirm new passcode
             <PinInput
               value={confirmPasscode}
@@ -422,7 +435,7 @@ export default function Settings() {
         {hasPasscode && (
           <div className="mt-4 text-center">
             {passcodeResetRequested ? (
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 Request sent — your Admin will send a reset through your Inbox.
               </p>
             ) : (
@@ -430,7 +443,7 @@ export default function Settings() {
                 type="button"
                 onClick={requestPasscodeReset}
                 disabled={requestingPasscodeReset}
-                className="text-xs font-semibold text-brand-600 underline decoration-dotted hover:text-brand-700 disabled:opacity-50"
+                className="text-xs font-semibold text-brand-600 underline decoration-dotted hover:text-brand-700 disabled:opacity-50 dark:text-brand-400 dark:hover:text-brand-300"
               >
                 {requestingPasscodeReset ? 'Sending…' : 'Forgot your passcode? Ask your Admin for help.'}
               </button>
@@ -444,14 +457,17 @@ export default function Settings() {
   return (
     <div className="mx-auto max-w-md">
       <CenterToast toast={toast} onDismiss={() => setToast(null)} />
-      <h1 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900">
-        <User size={20} strokeWidth={2} className="text-brand-800" />
+      <h1 className="mb-6 flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white">
+        <User size={20} strokeWidth={2} className="text-brand-800 dark:text-brand-400" />
         Profile
       </h1>
 
-      <div className="mb-6 flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div
+        data-tour="profile-page"
+        className="mb-6 flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900"
+      >
         <div className="relative shrink-0">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-lg font-bold text-brand-800 ring-2 ring-brand-100">
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-lg font-bold text-brand-800 ring-2 ring-brand-100 dark:bg-brand-500/15 dark:text-brand-400 dark:ring-brand-500/20">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -477,39 +493,41 @@ export default function Settings() {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="truncate text-base font-bold text-gray-900">{profile?.full_name || 'Student'}</p>
+            <p className="truncate text-base font-bold text-gray-900 dark:text-white">{profile?.full_name || 'Student'}</p>
             {profile?.contact_number_verified && (
-              <BadgeCheck size={16} strokeWidth={2} className="shrink-0 text-brand-600" />
+              <BadgeCheck size={16} strokeWidth={2} className="shrink-0 text-brand-600 dark:text-brand-400" />
             )}
           </div>
-          <p className="truncate text-sm text-gray-400">{user?.email}</p>
-          {uploadingAvatar && <p className="mt-1 text-xs text-gray-400">Uploading…</p>}
+          <p className="truncate text-sm text-gray-400 dark:text-gray-500">{user?.email}</p>
+          {uploadingAvatar && <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Uploading…</p>}
           {avatarError && <p className="mt-1 text-xs font-medium text-urgent-600">{avatarError}</p>}
         </div>
       </div>
 
-      <div className="mb-6 flex flex-col divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <div className="mb-6 flex flex-col divide-y divide-gray-100 rounded-2xl border border-gray-100 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-slate-900">
         <button
+          data-tour="profile-personal-info"
           onClick={() => setView('personal')}
-          className="flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50"
+          className="flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-white/5"
         >
-          <User size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
-          <span className="flex-1 text-sm font-semibold text-gray-800">Personal Information</span>
-          <ChevronRight size={16} strokeWidth={2} className="shrink-0 text-gray-300" />
+          <User size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
+          <span className="flex-1 text-sm font-semibold text-gray-800 dark:text-gray-100">Personal Information</span>
+          <ChevronRight size={16} strokeWidth={2} className="shrink-0 text-gray-300 dark:text-gray-600" />
         </button>
         <button
+          data-tour="profile-passcode"
           onClick={openPasscode}
-          className="flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50"
+          className="flex items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-white/5"
         >
-          <KeyRound size={18} strokeWidth={2} className="shrink-0 text-gray-400" />
-          <span className="flex-1 text-sm font-semibold text-gray-800">My Reports Passcode</span>
-          <ChevronRight size={16} strokeWidth={2} className="shrink-0 text-gray-300" />
+          <KeyRound size={18} strokeWidth={2} className="shrink-0 text-gray-400 dark:text-gray-500" />
+          <span className="flex-1 text-sm font-semibold text-gray-800 dark:text-gray-100">My Reports Passcode</span>
+          <ChevronRight size={16} strokeWidth={2} className="shrink-0 text-gray-300 dark:text-gray-600" />
         </button>
       </div>
 
       <button
         onClick={signOut}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-urgent-100 bg-urgent-50 px-5 py-3 text-base font-semibold text-urgent-600 transition-colors hover:bg-urgent-100"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-urgent-600 px-5 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-urgent-700"
       >
         <LogOut size={18} strokeWidth={2} />
         Log Out

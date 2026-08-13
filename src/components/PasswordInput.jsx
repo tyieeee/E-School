@@ -8,13 +8,6 @@ const VARIANTS = {
       'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-brand-500',
     toggle: 'text-gray-400 hover:text-gray-600',
   },
-  // Dark glass on mobile (matches the splash/login hero), light on desktop.
-  auth: {
-    icon: 'text-gray-500 lg:text-gray-400',
-    input:
-      'border-white/10 bg-white/5 text-white placeholder-gray-500 transition-colors focus:border-brand-400 focus:ring-2 focus:ring-brand-500/30 lg:border-gray-300 lg:bg-white lg:text-gray-900 lg:placeholder-gray-400 lg:focus:border-brand-500 lg:focus:ring-0',
-    toggle: 'text-gray-500 hover:text-gray-300 lg:text-gray-400 lg:hover:text-gray-600',
-  },
 }
 
 export default function PasswordInput({
@@ -22,6 +15,7 @@ export default function PasswordInput({
   value,
   onChange,
   autoComplete,
+  autoFocus = false,
   required = true,
   variant = 'light',
   placeholder = 'Enter your password',
@@ -41,6 +35,7 @@ export default function PasswordInput({
         type={visible ? 'text' : 'password'}
         required={required}
         autoComplete={autoComplete}
+        autoFocus={autoFocus}
         value={value}
         onChange={onChange}
         placeholder={placeholder}

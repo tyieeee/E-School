@@ -1,7 +1,8 @@
-import { useState } from 'react'
-import { Megaphone, ShieldAlert, CircleAlert, LifeBuoy, CheckCircle2, ImagePlus } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { ShieldAlert, CircleAlert, LifeBuoy, CheckCircle2, ImagePlus } from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
+import { autoCorrectOnSpace } from '../../lib/autoCorrect'
 import Button from '../../components/Button'
 import ConfirmModal from '../../components/ConfirmModal'
 import SlideToConfirm from '../../components/SlideToConfirm'
@@ -51,6 +52,19 @@ export default function Report() {
   const [busy, setBusy] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [slideResetCount, setSlideResetCount] = useState(0)
+  const descriptionRef = useRef(null)
+
+  function handleDescriptionChange(e) {
+    const el = e.target
+    const { text, cursor } = autoCorrectOnSpace(el.value, el.selectionStart)
+    setDescription(text)
+    if (text !== el.value) {
+      requestAnimationFrame(() => {
+        el.selectionStart = cursor
+        el.selectionEnd = cursor
+      })
+    }
+  }
 
   function handleFileChange(e) {
     const files = Array.from(e.target.files || [])
@@ -144,12 +158,12 @@ export default function Report() {
   if (submitted) {
     return (
       <div className="mx-auto max-w-md">
-        <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-calm-50 text-calm-600">
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm dark:border-white/10 dark:bg-slate-900">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-calm-50 text-calm-600 dark:bg-calm-500/15 dark:text-calm-400">
             <CheckCircle2 size={30} strokeWidth={2} />
           </div>
-          <h1 className="mb-2 text-xl font-bold text-gray-900">Report received</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">Report received</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Thank you for speaking up. Only the Admin can see this report — your classmates never
             will. They'll review it as soon as possible.
           </p>
@@ -172,19 +186,11 @@ export default function Report() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-1 flex items-center gap-2 text-2xl font-bold text-gray-900">
-        <Megaphone size={22} strokeWidth={2} className="text-brand-800" />
-        Report a Concern
-      </h1>
-      <p className="mb-6 text-sm text-gray-500">
-        This is private. Only your Admin will see this report — other students never will.
-      </p>
-
-      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <p className="mb-2 text-sm font-bold text-gray-800">What kind of concern is this?</p>
-            <div className="grid grid-cols-3 gap-2.5">
+            <p className="mb-2 text-sm font-bold text-gray-800 dark:text-gray-200">What kind of concern is this?</p>
+            <div data-tour="report-types" className="grid grid-cols-3 gap-2.5">
               {TYPES.map((t) => {
                 const selected = type === t.value
                 return (
@@ -192,15 +198,15 @@ export default function Report() {
                     key={t.value}
                     type="button"
                     onClick={() => setType(t.value)}
-                    className={`flex flex-col items-center gap-2 rounded-2xl border-2 px-2 py-4 text-center text-[11px] font-semibold leading-tight transition-colors ${
+                    className={`flex flex-col items-center gap-2 rounded-2xl border-2 px-2 py-4 text-center text-[11px] font-semibold leading-tight shadow-sm transition-colors ${
                       selected
                         ? `${t.border} ${t.tint} ${t.text}`
-                        : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                        : 'border-gray-100 bg-white text-gray-500 hover:border-gray-200 hover:bg-gray-50 dark:border-white/10 dark:bg-slate-900 dark:text-gray-400 dark:hover:border-white/20 dark:hover:bg-white/5'
                     }`}
                   >
                     <span
                       className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
-                        selected ? `${t.badge} text-white` : 'bg-gray-100 text-gray-400'
+                        selected ? `${t.badge} text-white` : 'bg-gray-100 text-gray-400 dark:bg-white/10 dark:text-gray-500'
                       }`}
                     >
                       <t.icon size={18} strokeWidth={2} />
@@ -212,23 +218,24 @@ export default function Report() {
             </div>
           </div>
 
-          <div>
-            <label htmlFor="report-description" className="mb-2 block text-sm font-bold text-gray-800">
+          <div data-tour="report-description">
+            <label htmlFor="report-description" className="mb-2 block text-sm font-bold text-gray-800 dark:text-gray-200">
               What happened? (required)
             </label>
             <textarea
               id="report-description"
+              ref={descriptionRef}
               required
               rows={5}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={handleDescriptionChange}
               placeholder="Tell us as much as you can…"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:bg-slate-900"
             />
           </div>
 
-          <div>
-            <label htmlFor="report-location" className="mb-2 block text-sm font-bold text-gray-800">
+          <div data-tour="report-location">
+            <label htmlFor="report-location" className="mb-2 block text-sm font-bold text-gray-800 dark:text-gray-200">
               Location / room (optional)
             </label>
             <input
@@ -237,14 +244,14 @@ export default function Report() {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Gym, Room 204"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base text-gray-900 placeholder-gray-400 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:bg-slate-900"
             />
           </div>
 
-          <div>
+          <div data-tour="report-photos">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-bold text-gray-800">Add photos (optional)</p>
-              <span className="text-xs font-medium text-gray-400">
+              <p className="text-sm font-bold text-gray-800 dark:text-gray-200">Add photos (optional)</p>
+              <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
                 {photos.length}/{MAX_PHOTOS}
               </span>
             </div>
@@ -254,12 +261,12 @@ export default function Report() {
                 {photos.map((file, i) => (
                   <li
                     key={i}
-                    className="flex items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2"
+                    className="flex items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 dark:border-white/10 dark:bg-white/5"
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand-800 shadow-sm">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand-800 shadow-sm dark:bg-slate-800 dark:text-brand-400">
                       <ImagePlus size={14} strokeWidth={2} />
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {file.name}
                     </span>
                     <button
@@ -277,15 +284,15 @@ export default function Report() {
             {photos.length < MAX_PHOTOS && (
               <label
                 htmlFor="report-photo"
-                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center transition-colors hover:border-brand-300 hover:bg-brand-50/40"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center transition-colors hover:border-brand-300 hover:bg-brand-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-brand-500/40 dark:hover:bg-brand-500/10"
               >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-800 shadow-sm">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-800 shadow-sm dark:bg-slate-800 dark:text-brand-400">
                   <ImagePlus size={18} strokeWidth={2} />
                 </span>
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   {photos.length ? 'Add another photo' : 'Tap to upload photos'}
                 </span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-400 dark:text-gray-500">
                   JPG or PNG, up to 5MB each — up to {MAX_PHOTOS} photos
                 </span>
                 <input
@@ -302,7 +309,7 @@ export default function Report() {
 
           {error && <p className="text-sm font-medium text-urgent-600">{error}</p>}
 
-          <div className="mt-1">
+          <div data-tour="report-submit" className="mt-1">
             <SlideToConfirm
               label="Slide to submit"
               onComplete={validateAndConfirm}
