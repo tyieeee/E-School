@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { getTutorialSeen } from '../lib/tutorialSeen'
 
 function FullScreenSpinner() {
   return (
@@ -18,7 +19,7 @@ export default function ProtectedRoute({ role }) {
   const loginPath = role === 'admin' ? '/login/adminlogin' : '/login'
 
   if (!session || !profile) {
-    return <Navigate to={loginPath} replace state={{ from: location }} />
+    return <Navigate to={loginPath} replace />
   }
 
   if (role && profile.role !== role) {
@@ -34,6 +35,19 @@ export default function ProtectedRoute({ role }) {
     !profile.must_change_password &&
     location.pathname === '/first-login-setup'
   ) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  if (
+    profile.role === 'student' &&
+    !profile.must_change_password &&
+    !getTutorialSeen(session.user.id) &&
+    location.pathname !== '/tutorial'
+  ) {
+    return <Navigate to="/tutorial" replace />
+  }
+
+  if (profile.role === 'student' && getTutorialSeen(session.user.id) && location.pathname === '/tutorial') {
     return <Navigate to="/dashboard" replace />
   }
 

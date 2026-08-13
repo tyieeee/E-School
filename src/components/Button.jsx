@@ -2,8 +2,10 @@ const variants = {
   primary: 'bg-brand-600 hover:bg-brand-700 text-white focus-visible:outline-brand-600',
   calm: 'bg-calm-500 hover:bg-calm-600 text-white focus-visible:outline-calm-500',
   urgent: 'bg-urgent-600 hover:bg-urgent-700 text-white focus-visible:outline-urgent-600',
-  secondary: 'bg-white hover:bg-brand-50 text-brand-700 border border-brand-200 focus-visible:outline-brand-600',
-  ghost: 'bg-transparent hover:bg-brand-100 text-brand-700 focus-visible:outline-brand-600',
+  secondary:
+    'bg-white hover:bg-brand-50 text-brand-700 border border-brand-200 focus-visible:outline-brand-600 dark:bg-white/5 dark:hover:bg-white/10 dark:text-brand-300 dark:border-white/10',
+  ghost:
+    'bg-transparent hover:bg-brand-100 text-brand-700 focus-visible:outline-brand-600 dark:hover:bg-white/10 dark:text-brand-300',
 }
 
 export default function Button({

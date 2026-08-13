@@ -1,11 +1,10 @@
-import { useId } from 'react'
+import logo from '../image/lgoo.png'
 
-// Arc-shaped radiating rings (top + bottom) around a shield-shaped badge —
-// three concentric arcs each side, computed on a 300x300 viewBox centered
-// at (150,150), leaving a gap between the shield edge and the innermost arc.
+// Arc-shaped radiating rings around a circular logo badge — three
+// concentric arcs each side, computed on a 300x300 viewBox centered at
+// (150,150), leaving a gap between the badge edge and the innermost arc.
 // Each radius pulses on a stagger so the rings read as an outward radar ping.
 const ARC_RADII = [90, 120, 150]
-const SHIELD_PATH = 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'
 
 function arcPath(radius, startDeg, endDeg) {
   const toRad = (deg) => (deg * Math.PI) / 180
@@ -33,9 +32,7 @@ function Arc({ radius, startDeg, endDeg, index }) {
   )
 }
 
-export default function RadiatingBadge({ size = 220, orbSize = 132, children }) {
-  const gradientId = useId()
-
+export default function RadiatingBadge({ size = 220, orbSize = 132 }) {
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg viewBox="0 0 300 300" className="absolute inset-0 h-full w-full text-brand-400">
@@ -47,24 +44,12 @@ export default function RadiatingBadge({ size = 220, orbSize = 132, children }) 
         ))}
       </svg>
 
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+      <img
+        src={logo}
+        alt=""
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-xl"
         style={{ width: orbSize, height: orbSize }}
-      >
-        <svg viewBox="-2.5 -2.5 29 29" className="h-full w-full drop-shadow-2xl">
-          <defs>
-            <radialGradient id={gradientId} cx="50%" cy="30%" r="80%">
-              <stop offset="0%" stopColor="var(--color-brand-400)" />
-              <stop offset="55%" stopColor="var(--color-brand-600)" />
-              <stop offset="100%" stopColor="var(--color-brand-700)" />
-            </radialGradient>
-          </defs>
-          <path d={SHIELD_PATH} fill={`url(#${gradientId})`} />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center pb-[10%]">
-          {children}
-        </div>
-      </div>
+      />
     </div>
   )
 }

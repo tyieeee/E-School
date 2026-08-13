@@ -15,7 +15,7 @@ import {
   FolderPlus,
   FolderInput,
 } from 'lucide-react'
-import { supabase } from '../../lib/supabaseClient'
+import { supabase, getFunctionErrorMessage } from '../../lib/supabaseClient'
 import Button from '../../components/Button'
 import ConfirmModal from '../../components/ConfirmModal'
 import PageHeader from '../../components/PageHeader'
@@ -66,6 +66,7 @@ export default function Students() {
   const [credentials, setCredentials] = useState(null) // { email, temp_password }
   const [pendingDelete, setPendingDelete] = useState(null)
   const [pendingReset, setPendingReset] = useState(null)
+  const [actionError, setActionError] = useState('')
   const [editingStudent, setEditingStudent] = useState(null)
   const [movingStudent, setMovingStudent] = useState(null)
   const [pendingDeleteSection, setPendingDeleteSection] = useState(null)
@@ -142,30 +143,43 @@ export default function Students() {
 
   async function confirmReset() {
     setBusy(true)
+    setActionError('')
     const { data, error } = await supabase.functions.invoke('manage-student', {
       body: { action: 'reset_password', student_id: pendingReset.id },
     })
     setBusy(false)
-    setPendingReset(null)
-    if (!error && !data?.error) {
-      setCredentials({ email: pendingReset.email, temp_password: data.temp_password, isReset: true })
+    if (error || data?.error) {
+      setActionError(await getFunctionErrorMessage(error, data))
+      return
     }
+    setPendingReset(null)
+    setCredentials({ email: pendingReset.email, temp_password: data.temp_password, isReset: true })
   }
 
   async function confirmDelete() {
     setBusy(true)
-    await supabase.functions.invoke('manage-student', {
+    setActionError('')
+    const { data, error } = await supabase.functions.invoke('manage-student', {
       body: { action: 'delete', student_id: pendingDelete.id },
     })
     setBusy(false)
+    if (error || data?.error) {
+      setActionError(await getFunctionErrorMessage(error, data))
+      return
+    }
     setPendingDelete(null)
     loadStudents()
   }
 
   async function confirmDeleteSection() {
     setBusy(true)
-    await supabase.from('sections').delete().eq('id', pendingDeleteSection.id)
+    setActionError('')
+    const { error } = await supabase.from('sections').delete().eq('id', pendingDeleteSection.id)
     setBusy(false)
+    if (error) {
+      setActionError(error.message)
+      return
+    }
     if (selectedSectionId === pendingDeleteSection.id) setSelectedSectionId(null)
     setPendingDeleteSection(null)
     loadStudents()
@@ -480,8 +494,12 @@ export default function Students() {
         description={`A new temporary password will be generated for ${pendingReset?.full_name}. They'll need to set a new one on next login.`}
         confirmLabel="Reset password"
         onConfirm={confirmReset}
-        onCancel={() => setPendingReset(null)}
+        onCancel={() => {
+          setPendingReset(null)
+          setActionError('')
+        }}
         busy={busy}
+        error={actionError}
       />
 
       <ConfirmModal
@@ -491,8 +509,12 @@ export default function Students() {
         confirmLabel="Delete account"
         confirmVariant="urgent"
         onConfirm={confirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onCancel={() => {
+          setPendingDelete(null)
+          setActionError('')
+        }}
         busy={busy}
+        error={actionError}
       />
 
       <ConfirmModal
@@ -502,8 +524,12 @@ export default function Students() {
         confirmLabel="Delete section"
         confirmVariant="urgent"
         onConfirm={confirmDeleteSection}
-        onCancel={() => setPendingDeleteSection(null)}
+        onCancel={() => {
+          setPendingDeleteSection(null)
+          setActionError('')
+        }}
         busy={busy}
+        error={actionError}
       />
     </div>
   )

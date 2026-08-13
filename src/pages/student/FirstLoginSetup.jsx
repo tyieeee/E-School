@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UserCheck, Check, Circle } from 'lucide-react'
+import { UserCheck, CheckCircle2, XCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
 import Button from '../../components/Button'
 import Card from '../../components/Card'
 import GoogleIcon from '../../components/GoogleIcon'
+import PasswordInput from '../../components/PasswordInput'
+import BrandMark from '../../components/BrandMark'
 
 const GMAIL_RE = /^[^\s@]+@gmail\.com$/i
 
@@ -25,14 +27,8 @@ function Required() {
   )
 }
 
-const STEPS = [
-  { label: 'Password', description: "Choose a new password to replace the one your Admin set." },
-  { label: 'Contact', description: 'Share a contact number so your Admin can reach you.' },
-  { label: 'Gmail', description: "Add a Gmail address so you can recover your account if you get locked out." },
-]
-
 export default function FirstLoginSetup() {
-  const { user, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [password, setPassword] = useState('')
@@ -42,13 +38,51 @@ export default function FirstLoginSetup() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const isLastStep = step === STEPS.length - 1
+  // Admin-triggered password resets already carry a contact number and Gmail
+  // on file — only genuinely new accounts need the full setup wizard.
+  const steps = useMemo(() => {
+    const list = [
+      { key: 'password', label: 'Password', description: "Choose a new password to replace the one your Admin set." },
+    ]
+    if (!profile?.contact_number) {
+      list.push({ key: 'contact', label: 'Contact', description: 'Share a contact number so your Admin can reach you.' })
+    }
+    if (!profile?.contact_email) {
+      list.push({ key: 'gmail', label: 'Gmail', description: "Add a Gmail address so you can recover your account if you get locked out." })
+    }
+    return list
+  }, [profile?.contact_number, profile?.contact_email])
+
+  const isLastStep = step === steps.length - 1
+  const isMultiStep = steps.length > 1
+  const currentKey = steps[step].key
+  const gmailInvalid = contactEmail.trim().length > 0 && !GMAIL_RE.test(contactEmail.trim())
+
+  const metRulesCount = PASSWORD_RULES.filter((rule) => rule.test(password)).length
+  const strengthPct = password ? (metRulesCount / PASSWORD_RULES.length) * 100 : 0
+  const strengthLabel = !password
+    ? 'Enter a password'
+    : metRulesCount === PASSWORD_RULES.length
+      ? 'Strong'
+      : metRulesCount >= PASSWORD_RULES.length - 1
+        ? 'Good'
+        : metRulesCount >= PASSWORD_RULES.length / 2
+          ? 'Fair'
+          : 'Weak'
+  const strengthColor =
+    metRulesCount === PASSWORD_RULES.length
+      ? 'bg-calm-600'
+      : metRulesCount >= PASSWORD_RULES.length - 1
+        ? 'bg-brand-600'
+        : metRulesCount >= PASSWORD_RULES.length / 2
+          ? 'bg-yellow-500'
+          : 'bg-urgent-500'
 
   function goNext(e) {
     e.preventDefault()
     setError('')
 
-    if (step === 0) {
+    if (currentKey === 'password') {
       if (!PASSWORD_RULES.every((rule) => rule.test(password))) {
         setError('Please meet all password requirements below.')
         return
@@ -59,8 +93,8 @@ export default function FirstLoginSetup() {
       }
     }
 
-    if (step === 1 && !/^\d{11}$/.test(contactNumber)) {
-      setError('Please enter an 11-digit contact number (e.g. 09171234567).')
+    if (currentKey === 'contact' && !/^\d{10}$/.test(contactNumber)) {
+      setError('Please enter a 10-digit contact number (e.g. 9171234567).')
       return
     }
 
@@ -76,7 +110,8 @@ export default function FirstLoginSetup() {
     e.preventDefault()
     setError('')
 
-    if (!GMAIL_RE.test(contactEmail.trim())) {
+    const hasGmailStep = steps.some((s) => s.key === 'gmail')
+    if (hasGmailStep && !GMAIL_RE.test(contactEmail.trim())) {
       setError('Please enter a valid Gmail address (e.g. you@gmail.com).')
       return
     }
@@ -90,14 +125,11 @@ export default function FirstLoginSetup() {
       return
     }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({
-        contact_number: contactNumber.trim(),
-        contact_email: contactEmail.trim() || null,
-        must_change_password: false,
-      })
-      .eq('id', user.id)
+    const updates = { must_change_password: false }
+    if (steps.some((s) => s.key === 'contact')) updates.contact_number = contactNumber.trim()
+    if (hasGmailStep) updates.contact_email = contactEmail.trim() || null
+
+    const { error: profileError } = await supabase.from('profiles').update(updates).eq('id', user.id)
 
     setBusy(false)
 
@@ -112,107 +144,129 @@ export default function FirstLoginSetup() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-50 px-4">
+      <BrandMark className="fixed left-4 top-4 z-20" />
       <Card className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand-600">
             <UserCheck size={28} strokeWidth={2} />
           </div>
-          <h1 className="text-xl font-bold text-gray-900">Welcome! Let's finish setting up your account.</h1>
-          <p className="mt-1 text-sm text-gray-500">{STEPS[step].description}</p>
+          <h1 className="text-xl font-bold text-gray-900">
+            {isMultiStep ? "Welcome! Let's finish setting up your account." : 'Reset your password'}
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">{steps[step].description}</p>
         </div>
 
-        <div className="mb-1.5 flex items-center gap-1.5">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.label}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
-                i <= step ? 'bg-brand-600' : 'bg-gray-200'
-              }`}
-            />
-          ))}
-        </div>
-        <p className="mb-6 text-center text-xs font-semibold text-gray-400">
-          Step {step + 1} of {STEPS.length} · {STEPS[step].label}
-        </p>
+        {isMultiStep && (
+          <>
+            <div className="mb-1.5 flex items-center gap-1.5">
+              {steps.map((s, i) => (
+                <div
+                  key={s.label}
+                  className={`relative h-1.5 flex-1 overflow-hidden rounded-full transition-colors ${
+                    i <= step ? 'bg-brand-600' : 'bg-gray-200'
+                  }`}
+                >
+                  {i === step && (
+                    <div className="absolute inset-y-0 left-0 w-1/3 animate-step-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="mb-6 text-center text-xs font-semibold text-gray-400">
+              Step {step + 1} of {steps.length} · {steps[step].label}
+            </p>
+          </>
+        )}
 
-        <form onSubmit={isLastStep ? handleSubmit : goNext} className="flex flex-col gap-4">
-          {step === 0 && (
+        <form onSubmit={isLastStep ? handleSubmit : goNext} className={`flex flex-col gap-4 ${isMultiStep ? '' : 'mt-6'}`}>
+          {currentKey === 'password' && (
             <>
               <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
                 <span>
                   New password
                   <Required />
                 </span>
-                <input
-                  type="password"
+                <PasswordInput
+                  id="password"
                   required
                   autoFocus
-                  minLength={8}
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-brand-500 focus:outline-none"
                 />
               </label>
 
-              <ul className="-mt-2 grid grid-cols-1 gap-1 sm:grid-cols-2">
-                {PASSWORD_RULES.map((rule) => {
-                  const met = rule.test(password)
-                  return (
-                    <li
-                      key={rule.key}
-                      className={`flex items-center gap-1.5 text-xs font-medium ${
-                        met ? 'text-calm-600' : 'text-gray-400'
-                      }`}
-                    >
-                      {met ? (
-                        <Check size={13} strokeWidth={2.5} className="shrink-0" />
-                      ) : (
-                        <Circle size={13} strokeWidth={2} className="shrink-0" />
-                      )}
-                      {rule.label}
-                    </li>
-                  )
-                })}
-              </ul>
+              <div className="-mt-2">
+                <div className="flex items-center gap-3">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${strengthColor}`}
+                      style={{ width: `${strengthPct}%` }}
+                    />
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold text-gray-500">{strengthLabel}</span>
+                </div>
+
+                <ul className="mt-3 flex flex-col gap-1.5">
+                  {PASSWORD_RULES.map((rule) => {
+                    const met = rule.test(password)
+                    const Icon = met ? CheckCircle2 : XCircle
+                    return (
+                      <li
+                        key={rule.key}
+                        className={`flex items-center gap-2 text-xs font-medium ${
+                          met ? 'text-calm-600' : 'text-gray-400'
+                        }`}
+                      >
+                        <Icon size={16} strokeWidth={2} className="shrink-0" />
+                        {rule.label}
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
 
               <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
                 <span>
                   Confirm password
                   <Required />
                 </span>
-                <input
-                  type="password"
+                <PasswordInput
+                  id="confirmPassword"
                   required
-                  minLength={8}
+                  autoComplete="new-password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-brand-500 focus:outline-none"
                 />
               </label>
             </>
           )}
 
-          {step === 1 && (
+          {currentKey === 'contact' && (
             <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
               <span>
                 Contact number
                 <Required />
               </span>
-              <input
-                type="tel"
-                required
-                autoFocus
-                inputMode="numeric"
-                maxLength={11}
-                placeholder="e.g. 09171234567"
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                className="rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-brand-500 focus:outline-none"
-              />
+              <div className="flex items-center gap-2 rounded-xl border border-gray-300 px-4 py-3 focus-within:border-brand-500">
+                <span className="text-base font-semibold text-gray-500">+63</span>
+                <span className="h-5 w-px bg-gray-300" />
+                <input
+                  type="tel"
+                  required
+                  autoFocus
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="9171234567"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  className="w-full min-w-0 border-none bg-transparent p-0 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0"
+                />
+              </div>
             </label>
           )}
 
-          {step === 2 && (
+          {currentKey === 'gmail' && (
             <>
               <label className="flex flex-col gap-1 text-sm font-semibold text-gray-700">
                 <span>
@@ -231,13 +285,23 @@ export default function FirstLoginSetup() {
                     placeholder="you@gmail.com"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 py-3 pl-10 pr-4 text-base focus:border-brand-500 focus:outline-none"
+                    className={`w-full rounded-xl border py-3 pl-10 pr-4 text-base focus:outline-none ${
+                      gmailInvalid
+                        ? 'border-urgent-400 focus:border-urgent-500'
+                        : 'border-gray-300 focus:border-brand-500'
+                    }`}
                   />
                 </div>
               </label>
-              <p className="-mt-2 text-xs font-normal text-gray-400">
-                We&apos;ll use this to send a password reset link if you ever get locked out.
-              </p>
+              {gmailInvalid ? (
+                <p className="-mt-2 text-xs font-medium text-urgent-600">
+                  Only @gmail.com addresses are accepted.
+                </p>
+              ) : (
+                <p className="-mt-2 text-xs font-normal text-gray-400">
+                  We&apos;ll use this to send a password reset link if you ever get locked out.
+                </p>
+              )}
             </>
           )}
 

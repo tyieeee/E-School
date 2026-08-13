@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ScanLine, Upload, X, CheckCircle2, Loader2, Eye, EyeOff, RefreshCw } from 'lucide-react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, getFunctionErrorMessage } from '../lib/supabaseClient'
 import { scanIdImage, generateEmailFromName } from '../lib/idScan'
 import Button from './Button'
 import SectionSelect from './SectionSelect'
@@ -106,7 +106,7 @@ export default function AddStudentModal({ open, onClose, onCreated }) {
     setBusy(false)
 
     if (invokeError || data?.error) {
-      setError(data?.error || invokeError.message)
+      setError(await getFunctionErrorMessage(invokeError, data))
       return
     }
 

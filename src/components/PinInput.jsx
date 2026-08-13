@@ -57,7 +57,9 @@ export default function PinInput({
   return (
     <div
       className={`flex justify-center gap-2 rounded-2xl border p-3 transition-colors ${
-        complete ? 'border-calm-500 bg-calm-50' : 'border-gray-200 bg-gray-50'
+        complete
+          ? 'border-calm-500 bg-calm-50 dark:bg-calm-500/10'
+          : 'border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5'
       }`}
     >
       {Array.from({ length }).map((_, i) => (
@@ -73,10 +75,10 @@ export default function PinInput({
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className={`h-12 w-11 rounded-xl border text-center text-lg font-bold text-gray-900 focus:outline-none focus:ring-2 disabled:opacity-50 ${
+          className={`h-12 w-11 rounded-xl border text-center text-lg font-bold text-gray-900 focus:outline-none focus:ring-2 disabled:opacity-50 dark:text-white ${
             complete
-              ? 'border-calm-500 bg-white focus:border-calm-500 focus:ring-calm-500/20'
-              : 'border-gray-200 bg-white focus:border-brand-500 focus:ring-brand-500/20'
+              ? 'border-calm-500 bg-white focus:border-calm-500 focus:ring-calm-500/20 dark:bg-slate-800'
+              : 'border-gray-200 bg-white focus:border-brand-500 focus:ring-brand-500/20 dark:border-white/10 dark:bg-slate-800'
           }`}
         />
       ))}

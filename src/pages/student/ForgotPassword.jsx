@@ -31,18 +31,18 @@ export default function ForgotPassword() {
     return (
       <AuthSplitLayout>
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-500/15 text-brand-400 lg:bg-brand-100 lg:text-brand-600">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand-600">
             <MailCheck size={28} strokeWidth={2} />
           </div>
-          <h2 className="text-2xl font-bold text-white lg:text-gray-900">Check your email</h2>
-          <p className="mt-2 text-sm text-gray-400 lg:text-gray-500">
+          <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
+          <p className="mt-2 text-sm text-gray-500">
             If that matches an account on file, we&apos;ve sent a password reset link to that
             account&apos;s login email — not the Gmail address you just entered. Open it to set
             a new password.
           </p>
           <Link
             to="/login"
-            className="mt-6 inline-block text-sm font-semibold text-brand-400 hover:text-brand-300 lg:text-brand-600 lg:hover:text-brand-700"
+            className="mt-6 inline-block text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
             Back to sign in
           </Link>
@@ -53,20 +53,17 @@ export default function ForgotPassword() {
 
   return (
     <AuthSplitLayout>
-      <h2 className="text-center text-2xl font-bold text-white lg:text-left lg:text-gray-900">
+      <h2 className="text-center text-2xl font-bold text-gray-900 lg:text-left">
         Forgot your password?
       </h2>
-      <p className="mt-1 text-center text-sm text-gray-400 lg:text-left lg:text-gray-500">
+      <p className="mt-1 text-center text-sm text-gray-500 lg:text-left">
         Enter the Gmail address saved on your account (not your login email) — we&apos;ll use it
         to find your account and email a reset link to your login address.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div>
-          <label
-            htmlFor="email"
-            className="mb-1 block text-sm font-semibold text-gray-200 lg:text-gray-700"
-          >
+          <label htmlFor="email" className="mb-1 block text-sm font-semibold text-gray-700">
             Gmail address
           </label>
           <div className="relative">
@@ -82,12 +79,12 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@gmail.com"
-              className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-10 pr-4 text-base text-white placeholder-gray-500 transition-colors focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/30 lg:border-gray-300 lg:bg-white lg:text-gray-900 lg:focus:border-brand-500 lg:focus:ring-0"
+              className="w-full rounded-xl border border-gray-300 bg-white py-3 pl-10 pr-4 text-base text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none"
             />
           </div>
         </div>
 
-        {error && <p className="text-sm font-medium text-red-400 lg:text-urgent-600">{error}</p>}
+        {error && <p className="text-sm font-medium text-urgent-600">{error}</p>}
 
         <Button type="submit" disabled={busy} className="mt-2 w-full shadow-lg shadow-brand-900/30">
           {busy ? 'Sending…' : 'Send request'}
@@ -95,7 +92,7 @@ export default function ForgotPassword() {
 
         <Link
           to="/login"
-          className="text-center text-sm font-semibold text-gray-400 hover:text-gray-200 lg:text-gray-500 lg:hover:text-gray-700"
+          className="text-center text-sm font-semibold text-gray-500 hover:text-gray-700"
         >
           Back to sign in
         </Link>

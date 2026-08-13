@@ -23,7 +23,10 @@ export default function StudentDashboard() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 p-6 text-white shadow-lg shadow-brand-900/25 ring-1 ring-white/10 sm:p-8">
+      <div
+        data-tour="dashboard-hero"
+        className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800 p-6 text-white shadow-lg shadow-brand-900/25 ring-1 ring-white/10 sm:p-8"
+      >
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5" />
         <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-16 -right-4 h-40 w-40 rounded-full bg-white/10 blur-xl" />
@@ -46,21 +49,21 @@ export default function StudentDashboard() {
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-3 gap-3">
+      <div data-tour="dashboard-quick-actions" className="mb-6 grid grid-cols-3 gap-3">
         {quickActions.map((item) => (
           <Link key={item.to} to={item.to} className="flex flex-col items-center gap-2">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-800 ring-1 ring-brand-100 shadow-md shadow-brand-900/10 transition-colors hover:bg-brand-100">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-800 ring-1 ring-brand-100 shadow-md shadow-brand-900/10 transition-colors hover:bg-brand-100 dark:bg-brand-500/15 dark:text-brand-400 dark:ring-brand-500/20 dark:hover:bg-brand-500/25">
               <item.icon size={24} strokeWidth={2} />
             </span>
-            <span className="text-xs font-semibold text-gray-700">{item.label}</span>
+            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{item.label}</span>
           </Link>
         ))}
       </div>
 
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-800">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-800 dark:bg-brand-500/15 dark:text-brand-400">
               <Bell size={16} strokeWidth={2.25} />
             </span>
             Announcements
@@ -74,16 +77,16 @@ export default function StudentDashboard() {
         {announcements.length > 0 && (
           <Link
             to="/announcements"
-            className="shrink-0 text-sm font-bold text-brand-800 hover:text-brand-900"
+            className="shrink-0 text-sm font-bold text-brand-800 hover:text-brand-900 dark:text-brand-400 dark:hover:text-brand-300"
           >
             View All
           </Link>
         )}
       </div>
 
-      {loading && <p className="text-sm text-gray-400">Loading…</p>}
+      {loading && <p className="text-sm text-gray-400 dark:text-gray-500">Loading…</p>}
       {!loading && announcements.length === 0 && (
-        <div className="rounded-2xl border border-gray-100 bg-white p-5 text-center text-sm text-gray-400 shadow-sm">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 text-center text-sm text-gray-400 shadow-sm dark:border-white/10 dark:bg-slate-900 dark:text-gray-500">
           No announcements yet.
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { X, Pencil } from 'lucide-react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, getFunctionErrorMessage } from '../lib/supabaseClient'
 import Button from './Button'
 import SectionSelect from './SectionSelect'
 
@@ -52,7 +52,7 @@ export default function EditStudentModal({ student, onClose, onSaved }) {
     setBusy(false)
 
     if (invokeError || data?.error) {
-      setError(data?.error || invokeError.message)
+      setError(await getFunctionErrorMessage(invokeError, data))
       return
     }
 

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-brand-50: #eff6ff;
@@ -29,6 +30,14 @@ html, body, #root {
   overflow-x: hidden;
 }
 
+:root.font-scale-sm {
+  font-size: 93.75%;
+}
+
+:root.font-scale-lg {
+  font-size: 112.5%;
+}
+
 body {
   margin: 0;
   background-color: var(--color-brand-50);
@@ -36,6 +45,12 @@ body {
   color: #1f2937;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+:root.dark body {
+  background-color: #020617;
+  color: #e2e8f0;
 }
 
 @keyframes urgent-pulse {
@@ -77,4 +92,22 @@ body {
 
 .animate-toast-drop-in {
   animation: toast-drop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes step-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+.animate-step-shimmer {
+  animation: step-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes login-zoom-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-login-zoom-in {
+  animation: login-zoom-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
