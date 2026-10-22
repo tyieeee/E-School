@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  --color-calm-50: #f0fdf9;
+  --color-calm-100: #ccfbef;
+  --color-calm-500: #14b8a6;
+  --color-calm-600: #0d9488;
+
+  --color-urgent-50: #fef2f2;
+  --color-urgent-100: #fee2e2;
+  --color-urgent-500: #ef4444;
+  --color-urgent-600: #dc2626;
+  --color-urgent-700: #b91c1c;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+:root.font-scale-sm {
+  font-size: 93.75%;
+}
+
+:root.font-scale-lg {
+  font-size: 112.5%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-brand-50);
+  font-family: 'Poppins', system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+:root.dark body {
+  background-color: #020617;
+  color: #e2e8f0;
+}
+
+@keyframes urgent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.animate-urgent-pulse {
+  animation: urgent-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes radiate-blink {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: var(--peak, 0.85); }
+}
+
+.animate-radiate {
+  animation: radiate-blink 2.6s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-in-up-delayed {
+  animation: fade-in-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+@keyframes toast-drop-in {
+  from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-toast-drop-in {
+  animation: toast-drop-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes step-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+.animate-step-shimmer {
+  animation: step-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes login-zoom-in {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-login-zoom-in {
+  animation: login-zoom-in 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
